@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="URDF">
+  <link name="world"/>
+  <joint name="world_fixed" type="fixed">
+      <parent link ="world"/>
+      <child link="base_link"/>
+  </joint>
+  
+  <link name="base_link">
+    <inertial>
+      <origin xyz="4.98511960929399E-06 1.57907172928518E-05 0.0554317727754952" rpy="0 0 0" />
+      <mass value="0.486340824819592" />
+      <inertia ixx="0.000845873927296916" ixy="-7.63579105382276E-08" ixz="-5.08635548157502E-09" iyy="0.000845747231959372" iyz="8.83914694494333E-09" izz="0.000954957627304566" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="file::///home/jigar/mujoco_ws/src/furuta_description/meshes/base_link.STL" />
+      </geometry>
+      <material name=""><color rgba="1 1 1 1" /></material>
+    </visual>
+  </link>
+
+  <link name="motor_encoder_link">
+    <inertial>
+      <origin xyz="-2.39646808307223E-07 0.000836456662183571 0.0134310883485041" rpy="0 0 0" />
+      <mass value="0.0865375317171068" />
+      <inertia ixx="7.83311507132095E-05" ixy="5.76312062779087E-11" ixz="3.38184154168076E-09" iyy="3.81243100813769E-05" iyz="2.81654605733501E-09" izz="8.045305686853E-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="file::///home/jigar/mujoco_ws/src/furuta_description/meshes/motor_encoder_link.STL" />
+      </geometry>
+      <material name=""><color rgba="0.682352941176471 0.662745098039216 1 1" /></material>
+    </visual>
+  </link>
+
+  <joint name="Joint_yaw" type="continuous">
+    <origin xyz="0 0 0.1535" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="motor_encoder_link" />
+    <axis xyz="0 0 -1" />
+    <dynamics damping="0.005" friction="0.005" />
+    <limit effort="100.0" velocity="100.0" />
+  </joint>
+
+  <link name="horizontal_vertical_rod_link">
+    <inertial>
+      <origin xyz="-0.000478640807380712 -0.04973493121004 0.128370778426584" rpy="0 0 0" />
+      <mass value="0.164162145283487" />
+      <inertia ixx="0.000517422449478552" ixy="-2.61159169423328E-06" ixz="-1.04810395814126E-11" iyy="0.00025953117399694" iyz="2.53260279637008E-13" izz="0.000259562351026085" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="file::///home/jigar/mujoco_ws/src/furuta_description/meshes/horizontal_vertical_rod_link.STL" />
+      </geometry>
+      <material name=""><color rgba="0.894117647058823 0.894117647058823 0.894117647058823 1" /></material>
+    </visual>
+  </link>
+
+  <joint name="joint_pitch" type="continuous">
+    <origin xyz="2.4835E-05 -0.04 0.030512" rpy="1.5708 0 -3.1416" />
+    <parent link="motor_encoder_link" />
+    <child link="horizontal_vertical_rod_link" />
+    <axis xyz="0 0 1" />
+    <dynamics damping="0.005" friction="0.005" />
+    <limit effort="100.0" velocity="100.0" />
+  </joint>
+
+  <ros2_control name="MujocoSystem" type="system">
+    <hardware>
+      <plugin>mujoco_ros2_control/MujocoSystemInterface</plugin>
+      <param name="mujoco_model">/home/jigar/mujoco_ws/src/furuta_description/urdf/furuta.xml</param>	
+    </hardware>
+    
+    <joint name="Joint_yaw">
+      <command_interface name="effort">
+        <param name="initial_value">0.0</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    
+    <joint name="joint_pitch">
+      <state_interface name="position">
+        <param name="initial_value">-3.1416</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+
+  <mujoco>
+    <compiler discardvisual="false" />
+  </mujoco>
+</robot>
